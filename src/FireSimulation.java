@@ -211,8 +211,9 @@ public class FireSimulation {
         //each column has four grid
         //12 grids in PNG file
         int gridHeight = grids.get(0).length, gridWidth = grids.get(0)[0].length;
-        int width = cellLength * gridWidth*3;
-        int height = cellLength * gridHeight*4;
+        Font font = new Font(Font.SANS_SERIF, Font.BOLD, 24);
+        int width = cellLength * gridWidth*3 + 20;
+        int height = cellLength * gridHeight*4 + (font.getSize()+4)*4;
 
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bufferedImage.createGraphics();
@@ -239,23 +240,44 @@ public class FireSimulation {
                 frameNum.add(i);
             }
         }
-        System.out.println("FRAME LENGTH-------------------------"+frameNum.size());
         int nextX = 0;
         int nextY = 0;
+        int spaceY = font.getSize() + 4;
+        int spaceX = 0;
+        int locationX=0;
+        int locationY=0;
+        String label;
+
         for(int j:frameNum) {
-            System.out.println("j-----------"+j);
+
             for(int y = 0; y<gridHeight; y++){
                 for(int x = 0; x<gridWidth; x++){
+                    locationX = (x+nextX) * cellLength + spaceX;
+                    locationY = (y+nextY) * cellLength + spaceY;
                     g2d.setColor(colors[grids.get(j)[x][y].getState()]);
-                    g2d.fillRect((x+nextX) * cellLength, (y+nextY) * cellLength, cellLength, cellLength);
+                    g2d.fillRect(locationX, locationY, cellLength, cellLength);
 
                 }
             }
+
             nextX+=gridWidth;
+            spaceX+=10;
             if(nextX == gridWidth * 3){
                 nextX = 0;
                 nextY += gridHeight;
+                spaceY += font.getSize() + 4;
+                spaceX = 0;
+
             }
+            g2d.setColor(Color.black);
+            if(j == frameNum.get(0)){
+                label = "Initial grid:";
+            }else{
+                label = "Grid at time step "+j+":";
+            }
+            g2d.drawString(label, locationX+cellLength-(gridWidth*cellLength),
+                    locationY+cellLength-gridHeight*cellLength);
+
         }
 
         g2d.dispose();
