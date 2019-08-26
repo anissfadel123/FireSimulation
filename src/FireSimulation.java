@@ -13,7 +13,13 @@
         c. probCatch is 0.5
 */
 //------------------------------------------------------------------------------------
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class FireSimulation {
     int gridSize; //column and row size
@@ -154,7 +160,7 @@ public class FireSimulation {
         return copyGrid;
     }
     // prints 12 grid frames into console (6 from the beginning,
-    // 3 from the middle, and 3 from the end
+    // 3 from the middle, and 3 from the end)
     public void showGraphsTxt(List<Cell[][]> grids){
         // if the grid is of size 12 or less
         // all its frame will be printed
@@ -194,24 +200,91 @@ public class FireSimulation {
 
         }
     }
-    public void showGraphsPNG(List<Cell[][]> grids){
+    // creates and stores at most 12 graphical grid frames into PNG file
+    // (6 from the beginning, 3 from the middle, and 3 from the end)
+    public void showGraphsPNG(List<Cell[][]> grids, String name)  {
+        Color colors[]= {new Color(255,255,0),
+                new Color(0,255,0), new Color(255,0,0) };
+        int cellLength = 5;
+
+        //each row has three grid
+        //each column has four grid
+        //12 grids in PNG file
+        int gridHeight = grids.get(0).length, gridWidth = grids.get(0)[0].length;
+        int width = cellLength * gridWidth*3;
+        int height = cellLength * gridHeight*4;
+
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = bufferedImage.createGraphics();
+
+        //sets background white
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0,0, width, height);
+
+        List<Integer> frameNum = new ArrayList<>();
+        if(grids.size() <= 12) {
+            for (int i = 0; i < grids.size(); i++) {
+                frameNum.add(i);
+            }
+        }
+        else{
+            for(int i = 0; i<=5; i++){
+                frameNum.add(i);
+            }
+            int mid = (grids.size()/2) + 1;
+            for(int i = mid; i < mid+3; i++){
+                frameNum.add(i);
+            }
+            for(int i = grids.size()-3; i < grids.size(); i++){
+                frameNum.add(i);
+            }
+        }
+        System.out.println("FRAME LENGTH-------------------------"+frameNum.size());
+        int nextX = 0;
+        int nextY = 0;
+        for(int j:frameNum) {
+            System.out.println("j-----------"+j);
+            for(int y = 0; y<gridHeight; y++){
+                for(int x = 0; x<gridWidth; x++){
+                    g2d.setColor(colors[grids.get(j)[x][y].getState()]);
+                    g2d.fillRect((x+nextX) * cellLength, (y+nextY) * cellLength, cellLength, cellLength);
+
+                }
+            }
+            nextX+=gridWidth;
+            if(nextX == gridWidth * 3){
+                nextX = 0;
+                nextY += gridHeight;
+            }
+        }
+
+        g2d.dispose();
+        File file = new File(name+".png");
+        try {
+            ImageIO.write(bufferedImage, "png", file);
+        } catch (IOException e) {
+            System.out.println("FAILED TO CREATE PNG FILE");
+        }
+
 
     }
-
     public static void main(String[] args) {
         FireSimulation sim = new FireSimulation();
         List<Cell[][]> grids;
         System.out.println("a. probCatch is 0.2");
         grids = sim.fire(25, 0.2);
         sim.showGraphsTxt(grids);
+        sim.showGraphsPNG(grids, "grid1");
         System.out.println("-----------------------------------------------------------");
         System.out.println("b. probCatch is 0.8");
         grids = sim.fire(25, 0.8);
         sim.showGraphsTxt(grids);
+        sim.showGraphsPNG(grids, "grid2");
         System.out.println("-----------------------------------------------------------");
         System.out.println("c. probCatch is 0.5");
         grids = sim.fire(25, 0.5);
         sim.showGraphsTxt(grids);
+        sim.showGraphsPNG(grids, "grid3");
         System.out.println("-----------------------------------------------------------");
 
 
