@@ -1,4 +1,18 @@
-import java.sql.SQLOutput;
+//------------------------------------------------------------------------------------
+//Aniss Fadel
+//Fire Spread Simulation project
+//CISC 4900
+//http://nifty.stanford.edu/2007/shiflet-fire/
+
+/* 1. (This assignment does not require visualization.) Develop a simulation for
+        fire as described above. Display the resulting grids by showing the value
+        in each cell. Run the program several times for each of the following situations.
+        Notice how the probability affects the spread of fire.
+        a. probCatch is 0.2
+        b. probCatch is 0.8
+        c. probCatch is 0.5
+*/
+//------------------------------------------------------------------------------------
 import java.util.*;
 
 public class FireSimulation {
@@ -6,11 +20,7 @@ public class FireSimulation {
     Cell forest[][];
     int forestX, forestY;
     int burningTrees=0;
-//    FireSimulation(){ }
-//    FireSimulation(int n, double probCatch){
-//        gridSize = n;
-//        fire(n, probCatch);
-//    }
+
     
      public List<Cell[][]> fire(int n, double probCatch){
         gridSize = n;
@@ -20,21 +30,12 @@ public class FireSimulation {
         List<Cell[][]> grids = new ArrayList<>();
         grids.add(init);
 
-         System.out.println("------------------------------------------------------------------");
+        //spreads fire until there isn't any fire
         do{
-//            Cell[][] a = applySpread(forest,probCatch).clone();
-
             grids.add(copy(applySpread(forest,probCatch)));
-//            printGrid(a);
-//            grids.add(a);
-
-
         }while(burningTrees>0);
-         System.out.println("Grid:  ");
 
-
-         System.out.println("------------------------------------------------------------------");
-         printListGrid(grids);
+//         printListGrid(grids);
 
 
         return grids;
@@ -70,7 +71,7 @@ public class FireSimulation {
             for(int x = 0; x<grid[0].length;x++)
                 forest[x][y] = new Cell(grid[x][y].getState(),x,y);
         }
-        printGrid(forest);
+//        printGrid(forest);
         return grid;
 
     }
@@ -81,8 +82,9 @@ public class FireSimulation {
                 if(cells[x][y]==null) {
                     System.out.print("n ");
                     continue;
-                } else
-                System.out.print(cells[x][y].getState()+" ");
+                }
+                else
+                    System.out.print(cells[x][y].getState()+" ");
             }
             System.out.println("");
         }
@@ -102,7 +104,6 @@ public class FireSimulation {
         for(int x = 0; x < territory[0].length; x++){
             for(int y = 0; y < territory.length; y++){
                 if(territory[x][y].getState() == Cell.BURNING){
-                    System.out.println("burning:("+territory[x][y].x+","+territory[x][y].y+")");
                     cellsOnFire.add(territory[x][y]);
                 }
             }
@@ -110,7 +111,6 @@ public class FireSimulation {
         while(!cellsOnFire.isEmpty()){
             Cell cell = cellsOnFire.peek();
             Random ran = new Random();
-            System.out.println(cell.x+" "+cell.y);
 
             // checks if north cell is burnable (it is burnable if it is a TREE)
             // and creates a fire if the ran.nextDouble is equal to or less than the probability
@@ -139,8 +139,7 @@ public class FireSimulation {
             burningTrees--;
             cellsOnFire.remove();
         }
-//        System.out.println("territory: ");
-//        printGrid(territory);
+
         return territory;
 
     }
@@ -154,12 +153,70 @@ public class FireSimulation {
         }
         return copyGrid;
     }
+    // prints 12 grid frames into console (6 from the beginning,
+    // 3 from the middle, and 3 from the end
+    public void showGraphsTxt(List<Cell[][]> grids){
+        // if the grid is of size 12 or less
+        // all its frame will be printed
+
+        if(grids.size()<=12){
+            for(int i=0; i<grids.size(); i++){
+                System.out.println();
+                if(i == 0){
+                    System.out.println("Initial grid: ");
+                }else{
+                    System.out.println("Grid at time step "+i+":");
+                }
+                printGrid(grids.get(i));
+            }
+        }
+        else{
+            for(int i=0; i<=5; i++){
+                System.out.println();
+                if(i == 0){
+                    System.out.println("Initial grid: ");
+                }else{
+                    System.out.println("Grid at time step "+i+":");
+                }
+                printGrid(grids.get(i));
+            }
+            int mid = (grids.size()/2) + 1;
+            for(int i = mid; i < mid+3; i++){
+                System.out.println();
+                System.out.println("Grid at time step "+i+":");
+                printGrid(grids.get(i));
+            }
+            for(int i = grids.size()-3; i < grids.size(); i++){
+                System.out.println();
+                System.out.println("Grid at time step "+i+":");
+                printGrid(grids.get(i));
+            }
+
+        }
+    }
+    public void showGraphsPNG(List<Cell[][]> grids){
+
+    }
 
     public static void main(String[] args) {
         FireSimulation sim = new FireSimulation();
-//        sim.printListGrid(sim.fire(25, 0.50));
-        sim.fire(25, 0.50);
+        List<Cell[][]> grids;
+        System.out.println("a. probCatch is 0.2");
+        grids = sim.fire(25, 0.2);
+        sim.showGraphsTxt(grids);
+        System.out.println("-----------------------------------------------------------");
+        System.out.println("b. probCatch is 0.8");
+        grids = sim.fire(25, 0.8);
+        sim.showGraphsTxt(grids);
+        System.out.println("-----------------------------------------------------------");
+        System.out.println("c. probCatch is 0.5");
+        grids = sim.fire(25, 0.5);
+        sim.showGraphsTxt(grids);
+        System.out.println("-----------------------------------------------------------");
+
+
     }
+
 
 }
 class Cell{
@@ -181,8 +238,6 @@ class Cell{
     public byte getState() {
         return state;
     }
-    //returns a copy of this cell
-
 
     public void setState(byte state) {
         this.state = state;
